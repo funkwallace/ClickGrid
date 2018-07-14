@@ -27,6 +27,7 @@ class Connector {
   }
 
   void display() {
+    updateLenMid();
     mouseOver();
     strokeWeight(2);
     if (active) stroke(HIGHLIGHT);
@@ -35,16 +36,19 @@ class Connector {
   }
 
   void mouseOver() {
-    updateLenMid();
     if (dist(mouseX, mouseY, midpoint.x, midpoint.y) < 5)
       setActive(true);
     else setActive(false);
   }
 
   void setActive(boolean s) {
-    //toggle activeNode if active state is changing
-    activeCon = s ? this : null;
-    active = s;
+    //toggle activeCon if active state is changing
+    //adds or removes itself from activeCons list only when changing
+    if (s != active) {
+      if (s == true) activeCons.add(this);
+      else activeCons.remove(this);
+      active = s;
+    }
   }
 
   void drag() {
@@ -55,6 +59,7 @@ class Connector {
 
   void setEnd (Node n) {
     pq[1] = n;
+    tempNode = null; //TODO:needed?
   }
 
   void updateLenMid() {

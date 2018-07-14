@@ -32,8 +32,12 @@ class Node {
 
   void setActive(boolean s) {
     //toggle activeNode if active state is changing
-    if (s != active) activeNode = s ? this : null;
-    active = s;
+    //adds or removes itself from activeNodes list only when changing
+    if (s != active) {
+      if (s == true) activeNodes.add(this);
+      else activeNodes.remove(this);
+      active = s;
+    }
   }
 
   void drag() {
