@@ -2,6 +2,7 @@ int gridScale = 40;
 ArrayList<Node> nodes = new ArrayList<Node>();
 ArrayList<Connector> cons = new ArrayList<Connector>();
 Node activeNode = null;
+Node dragNode = null;
 Connector activeCon = null;
 float totLen;
 
@@ -36,11 +37,14 @@ void draw() {
   //text
   fill(0);
   textSize(15);
-  text(nodes.size(), 10, 15);
-  text(cons.size(), 10, 35);
-  //if (activeNode==null) text("null", 10, 55);
-  //else text(activeNode.x, 10, 55);
-  text(totLen/gridScale, 10, 55);
+  text("# Nodes: "+nodes.size(), 10, 15);
+  text("# Cons:  "+cons.size(), 10, 35);
+  text("length:  "+totLen/gridScale, 10, 55);
+  //test dispay
+  if (activeNode==null) text("null", 10, 75);
+  else text(activeNode.x, 10, 75);
+  if (activeCon==null) text("null", 10, 95);
+  else text(activeCon.midpoint.x, 10, 95);
 }
 
 void drawGrid() {
@@ -58,18 +62,19 @@ void drawGrid() {
 void mousePressed() {
   //activeNode set to null when mouse released, so always need to check
   //if multiple nodes could be active, only latest one in List ends up selected
-  for (Node n : nodes) {
-    if (n.mouseOver()) activeNode = n;
-  }
+  //for (Node n : nodes) {
+  //  if (n.mouseOver()) activeNode = n;
+  //}
   //if not dragging new con, activeCon is mouseover midpoint
-  if (activeCon == null) {
-    for (Connector c : cons) {
-      if (c.mouseOver()) activeCon = c;
-    }
-  }
+  //if (activeCon == null) {
+  //  for (Connector c : cons) {
+  //    if (c.mouseOver()) activeCon = c;
+  //  }
+  //}
   //if active node, do things; else add node at current mouse position
   if (activeNode != null) {
     //if RIGHT mouseclick
+
     if (mouseButton == RIGHT && activeCon == null) {
       removeNodeCon(activeNode);
     } else if (activeCon != null) {
@@ -83,8 +88,9 @@ void mousePressed() {
       activeCon = new Connector(activeNode);
       cons.add(activeCon);
     } else {
-      //else LEFT click drag          
-      activeNode.dragging = true;
+      //else LEFT click drag
+      dragNode = activeNode;
+      dragNode.dragging = true;
     }
   } 
   //No active node; either cancel connector or add node
@@ -92,15 +98,17 @@ void mousePressed() {
     if (activeCon != null) {
       cons.remove(activeCon);
       activeCon = null;
-    } else nodes.add(new Node(mouseX, mouseY));
+    } else {
+      nodes.add(new Node(mouseX, mouseY));
+    }
   }
 }
 
 void mouseReleased() {
   //on mouse release, stop dragging activeNode
-  if (activeNode != null) {
-    activeNode.dragging = false;
-    activeNode = null;
+  if (dragNode != null) {
+    dragNode.dragging = false;
+    dragNode = null;
   }
 }
 
@@ -113,7 +121,8 @@ void removeNodeCon(Node n) {
       cons.remove(c);
     }
   }
+  n.setActive(false);
   nodes.remove(n);
-  //ensure activeNode reset to null
-  n = null;
+  //TODO:ensure activeNode reset to null- necesary?
+  //activeNode = null;
 }

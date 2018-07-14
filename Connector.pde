@@ -6,6 +6,7 @@ class Connector {
   boolean dragging;
   float len;
   PVector midpoint;
+  boolean active;
 
   //Connector (float x1, float y1, float x2, float y2) {
   //  //Adds non-dragging line between two specified points
@@ -22,20 +23,28 @@ class Connector {
     pq[1] = tempNode;
     dragging = true;
     col = BASE;
+    active = true;
   }
 
   void display() {
+    mouseOver();
     strokeWeight(2);
-    if (mouseOver()) stroke(HIGHLIGHT);
+    if (active) stroke(HIGHLIGHT);
     else stroke(col);
     line (pq[0].x, pq[0].y, pq[1].x, pq[1].y);
   }
 
-  boolean mouseOver() {
+  void mouseOver() {
     updateLenMid();
     if (dist(mouseX, mouseY, midpoint.x, midpoint.y) < 5)
-      return true;
-    else return false;
+      setActive(true);
+    else setActive(false);
+  }
+
+  void setActive(boolean s) {
+    //toggle activeNode if active state is changing
+    activeCon = s ? this : null;
+    active = s;
   }
 
   void drag() {
