@@ -1,8 +1,10 @@
 int gridScale = 40;
 ArrayList<Node> nodes = new ArrayList<Node>();
 ArrayList<Connector> cons = new ArrayList<Connector>();
-Node activeNode = null;
-Connector activeCon = null;
+ArrayList<Node> activeNodes = new ArrayList<Node>();
+ArrayList<Connector> activeCons = new ArrayList<Connector>();
+Node dragNode;
+Connector addingCon;
 float totLen;
 
 void setup() {
@@ -36,11 +38,12 @@ void draw() {
   //text
   fill(0);
   textSize(15);
-  text(nodes.size(), 10, 15);
-  text(cons.size(), 10, 35);
-  //if (activeNode==null) text("null", 10, 55);
-  //else text(activeNode.x, 10, 55);
-  text(totLen/gridScale, 10, 55);
+  text("# Nodes: "+nodes.size(), 10, 15);
+  text("# Cons:  "+cons.size(), 10, 35);
+  text("length:  "+totLen/gridScale, 10, 55);
+  //test dispay
+  text("active N: "+activeNodes.size(), 10, 75);
+  text("active C: "+activeCons.size(), 10, 95);
 }
 
 void drawGrid() {
@@ -56,64 +59,69 @@ void drawGrid() {
 }
 
 void mousePressed() {
-  //activeNode set to null when mouse released, so always need to check
-  //if multiple nodes could be active, only latest one in List ends up selected
-  for (Node n : nodes) {
-    if (n.mouseOver()) activeNode = n;
-  }
-  //if not dragging new con, activeCon is mouseover midpoint
-  if (activeCon == null) {
-    for (Connector c : cons) {
-      if (c.mouseOver()) activeCon = c;
-    }
-  }
-  //if active node, do things; else add node at current mouse position
-  if (activeNode != null) {
-    //if RIGHT mouseclick
-    if (mouseButton == RIGHT && activeCon == null) {
-      removeNodeCon(activeNode);
-    } else if (activeCon != null) {
+  //if multiple nodes active, only first one in List ends up selected
+
+  //If active node, do things; else add node at current mouse position
+  if (!activeNodes.isEmpty()) {
+    //RIGHT mouseclick, remove active con or node
+    if (mouseButton == RIGHT) { 
+      if (!activeCons.isEmpty()) removeCon(activeCons.get(0));
+      else removeNodeCon(activeNodes.get(0));
+    } else if (addingCon != null) {
       //LEFT or RIGHT click, complete connector
-      activeCon.dragging = false;
-      activeCon.setEnd(activeNode);
-      activeCon = null;
+      if (!addingCon.containsNode(activeNodes.get(0))) {
+        //prevent connect node to itself
+        addingCon.dragging = false;
+        addingCon.setEnd(activeNodes.get(0));
+        addingCon = null;
+      }
     } else if (keyPressed && keyCode == SHIFT) {
       //else LEFT click + SHIFT; add connector
-      activeNode.col = color(0, 230, 0);
-      activeCon = new Connector(activeNode);
-      cons.add(activeCon);
+      activeNodes.get(0).col = color(0, 230, 0);
+      addingCon = new Connector(activeNodes.get(0));
+      cons.add(addingCon);
     } else {
-      //else LEFT click drag          
-      activeNode.dragging = true;
+      //else LEFT click drag
+      dragNode = activeNodes.get(0);
+      dragNode.dragging = true;
     }
-  } 
-  //No active node; either cancel connector or add node
+  }
+  //No active node; either cancel/remove connector or add node
   else {
-    if (activeCon != null) {
-      cons.remove(activeCon);
-      activeCon = null;
+    //LEFT or RIGHT click first cancel adding con
+    if (addingCon != null) {
+      removeCon(addingCon);
+      addingCon = null;
+    } else if (mouseButton == RIGHT) { 
+      //else RIGHT click, remove active con
+      if (!activeCons.isEmpty()) removeCon(activeCons.get(0));
     } else nodes.add(new Node(mouseX, mouseY));
   }
 }
 
 void mouseReleased() {
   //on mouse release, stop dragging activeNode
-  if (activeNode != null) {
-    activeNode.dragging = false;
-    activeNode = null;
+  if (dragNode != null) {
+    dragNode.dragging = false;
+    dragNode = null;
   }
 }
 
 void removeNodeCon(Node n) {
-  //typically pass in activeNode
+  //typically pass in active Node
   //first remove all connected Connectors
   for (int i=cons.size()-1; i>=0; i--) {
     Connector c = cons.get(i);
-    if (c.containsNode(n)) {
-      cons.remove(c);
-    }
+    if (c.containsNode(n)) removeCon(c);
   }
+  //if node active, will remove itself from activeNodes list
+  n.setActive(false);
   nodes.remove(n);
-  //ensure activeNode reset to null
-  n = null;
+}
+
+void removeCon(Connector c) {
+  //typically pass in active Connector
+  //if con active, will remove itself from activeCons list
+  c.setActive(false);
+  cons.remove(c);
 }
