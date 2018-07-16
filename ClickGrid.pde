@@ -1,10 +1,11 @@
-int gridScale = 40;
+float gridScale = 40, minGridScale = 5;
+float mScale = 1/gridScale, zoomInc = 5;
 ArrayList<Node> nodes = new ArrayList<Node>();
 ArrayList<Connector> cons = new ArrayList<Connector>();
 ArrayList<Node> activeNodes = new ArrayList<Node>();
 ArrayList<Connector> activeCons = new ArrayList<Connector>();
-Node dragNode;
-Connector addingCon;
+Node dragNode = null;
+Connector addingCon = null;
 float totLen;
 
 void setup() {
@@ -40,7 +41,7 @@ void draw() {
   textSize(15);
   text("# Nodes: "+nodes.size(), 10, 15);
   text("# Cons:  "+cons.size(), 10, 35);
-  text("length:  "+totLen/gridScale, 10, 55);
+  text("length:  "+totLen, 10, 55);
   //test dispay
   text("active N: "+activeNodes.size(), 10, 75);
   text("active C: "+activeCons.size(), 10, 95);
@@ -124,4 +125,23 @@ void removeCon(Connector c) {
   //if con active, will remove itself from activeCons list
   c.setActive(false);
   cons.remove(c);
+}
+
+void keyPressed() {
+  //Use keys to increment zoom scale
+  //nested if prevents gridScale from reaching zero, or 1/0 for mScale later
+  if (key == '=' || key == '+') rescale(gridScale + zoomInc);
+  else if (key == '-' || key == '_') {
+    if (gridScale > minGridScale) rescale(gridScale - zoomInc);
+  }
+}
+
+void rescale (float newScale) {
+  float sFactor = newScale / gridScale;
+  gridScale = newScale;
+  mScale = 1/gridScale;
+  for (Node n : nodes) {
+    n.setLoc(n.x * sFactor, n.y * sFactor);
+    n.mUpdate();
+  }
 }
