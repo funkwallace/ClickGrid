@@ -1,5 +1,5 @@
 class Node {
-  float x, y;
+  float x, y, xm, ym;
   color col, BASE = color(100, 160, 235), HIGHLIGHT = color(255, 210, 60);
   boolean dragging;
   boolean active;
@@ -7,6 +7,7 @@ class Node {
   Node(float x_, float y_) {
     x = x_;
     y = y_;
+    mUpdate(); //update x,y to xm,ym (aka model coords)
     col = BASE;
     dragging = false;
     active = false;
@@ -17,7 +18,7 @@ class Node {
     noStroke();
     if (active) {
       fill(HIGHLIGHT);
-      text(x+","+y, x+10, y-15);
+      text(xm+","+ym, x+10, y-15);
     } else {
       fill(col);
     }
@@ -45,11 +46,17 @@ class Node {
     if (dragging) {
       x = constrain(mouseX, 0, width);
       y = constrain(mouseY, 0, height);
+      mUpdate();
     }
   }
 
   void setLoc (float x_, float y_) {
     x = x_;
     y = y_;
+  }
+  
+  void mUpdate () {
+    xm = map(x,0,width,0,width*mScale);
+    ym = map(y,0,height,0,height*mScale);
   }
 }

@@ -63,7 +63,7 @@ class Connector {
   }
 
   void updateLenMid() {
-    len = dist(pq[0].x, pq[0].y, pq[1].x, pq[1].y);
+    len = dist(pq[0].xm, pq[0].ym, pq[1].xm, pq[1].ym);
     float midx = (pq[0].x + pq[1].x)/2;
     float midy = (pq[0].y + pq[1].y)/2;
     midpoint = new PVector(midx, midy);
