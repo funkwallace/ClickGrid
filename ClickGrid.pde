@@ -84,8 +84,8 @@ void mousePressed() {
       else removeNodeCon(activeNodes.get(0));
     } else if (addingCon != null) {
       //LEFT or RIGHT click, complete connector
-      if (!addingCon.containsNode(activeNodes.get(0))) {
-        //prevent connect node to itself
+      //prevent connect node to itself or already connected node
+      if (!isConnected(addingCon.pq[0], activeNodes.get(0))) {
         addingCon.dragging = false;
         addingCon.setEnd(activeNodes.get(0));
         addingCon = null;
@@ -119,7 +119,7 @@ void mouseReleased() {
   if (dragNode != null) {
     dragNode.dragging = false;
     if (snapMode) {
-      dragNode.setLoc(snapX,snapY);
+      dragNode.setLoc(snapX, snapY);
       dragNode.mUpdate();
     }
     dragNode = null;
@@ -165,4 +165,11 @@ void rescale (float newScale) {
     n.setLoc(n.x * sFactor, n.y * sFactor);
     n.mUpdate();
   }
+}
+
+boolean isConnected (Node p, Node q) {
+  for (Connector c:cons) {
+    if (c.containsNode(p) && c.containsNode(q)) return true;
+  }
+  return false;
 }
