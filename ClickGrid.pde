@@ -7,6 +7,8 @@ ArrayList<Connector> activeCons = new ArrayList<Connector>();
 Node dragNode = null;
 Connector addingCon = null;
 float totLen;
+boolean snapMode = true;
+float snapX, snapY;
 
 void setup() {
   size(600, 400);
@@ -17,10 +19,22 @@ void draw() {
   background(255);
   drawGrid();
 
+  //move dragNode; use snap if snapMode
+  if (dragNode != null) {
+    dragNode.drag();
+    if (snapMode) {
+      snapX = round(dragNode.x/gridScale)*gridScale;
+      snapY = round(dragNode.y/gridScale)*gridScale;
+      stroke(220, 20, 0, 80);
+      noFill();
+      rectMode(RADIUS);
+      rect(snapX, snapY, 5, 5);
+    }
+  }
+
   //draw nodes
   for (int i=nodes.size()-1; i>=0; i--) {
     Node n = nodes.get(i);
-    n.drag();
     n.display();
   }
   //draw connectors
@@ -104,6 +118,10 @@ void mouseReleased() {
   //on mouse release, stop dragging activeNode
   if (dragNode != null) {
     dragNode.dragging = false;
+    if (snapMode) {
+      dragNode.setLoc(snapX,snapY);
+      dragNode.mUpdate();
+    }
     dragNode = null;
   }
 }
@@ -133,6 +151,9 @@ void keyPressed() {
   if (key == '=' || key == '+') rescale(gridScale + zoomInc);
   else if (key == '-' || key == '_') {
     if (gridScale > minGridScale) rescale(gridScale - zoomInc);
+  } else if (key == 'p' || key == 'P') {
+    //toggle snap to grid
+    snapMode = !snapMode;
   }
 }
 

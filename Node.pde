@@ -1,6 +1,6 @@
 class Node {
   float x, y, xm, ym;
-  color col, BASE = color(100, 160, 235), HIGHLIGHT = color(255, 210, 60);
+  color col, BASE = color(100, 160, 235), HIGHLIGHT = color(255, 200, 0);
   boolean dragging;
   boolean active;
 

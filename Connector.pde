@@ -1,5 +1,5 @@
 class Connector {
-  color col, BASE = color(0, 100), HIGHLIGHT = color(255, 210, 60);
+  color col, BASE = color(0, 100), HIGHLIGHT = color(255, 200, 0);
   //line from endpoints p to q; stored as Node array 0 to 1
   Node[] pq = new Node[2];
   Node tempNode;
